@@ -10,12 +10,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.skitech.api.service.S3Service;
+
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
 /*
 import com.skitech.cloud.service.S3Service;
@@ -127,14 +130,22 @@ public class ImageController {
     
     @GetMapping("/display/{fileName}")
     public ResponseEntity<byte[]> displayImage(@PathVariable String fileName) throws IOException {
-        byte[] imageBytes = amazonS3Service.displayFile(fileName);
+    	 try {
+ 	        byte[] imageBytes = amazonS3Service.displayFile(fileName);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(getContentType(fileName)));
+ 	        HttpHeaders headers = new HttpHeaders();
+ 	        headers.setContentType(MediaType.parseMediaType(getContentType(fileName)));
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(imageBytes);
+ 	        return ResponseEntity.ok()
+ 	                .headers(headers)
+ 	                .body(imageBytes);
+ 	    } catch (NoSuchKeyException e) {
+ 	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+ 	                .body(("File not found: " + fileName).getBytes());
+ 	    } catch (Exception e) {
+ 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+ 	                .body(("Error fetching file: " + e.getMessage()).getBytes());
+ 	    }
     }
 
     // Helper method to determine Content-Type based on file extension
@@ -151,6 +162,16 @@ public class ImageController {
     @GetMapping("/files")
     public ResponseEntity<List<String>> listFiles() {
         return ResponseEntity.ok(amazonS3Service.listAllFiles());
+    }
+    
+    @DeleteMapping("/delete/{fileName}")
+    public ResponseEntity<String> deleteFile(@PathVariable String fileName) {
+        try {
+            amazonS3Service.deleteFile(fileName);
+            return ResponseEntity.ok("File deleted successfully: " + fileName);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error deleting file: " + e.getMessage());
+        }
     }
 }
 

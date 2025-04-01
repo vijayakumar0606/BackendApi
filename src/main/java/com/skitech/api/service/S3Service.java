@@ -44,6 +44,8 @@ import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.awscore.presigner.SdkPresigner;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -132,6 +134,15 @@ public class S3Service {
                 .collect(Collectors.toList());
     }
     
+    public void deleteFile(String fileName) {
+    	DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName)
+                .build();
+
+        DeleteObjectResponse deleteResponse = s3Client.deleteObject(deleteRequest);
+        System.out.println("Deleted file: " + fileName + " | Status: " + deleteResponse);
+    }
     
     /*
     private final SdkPresigner s3Presigner;

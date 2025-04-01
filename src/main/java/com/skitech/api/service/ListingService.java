@@ -2,13 +2,18 @@ package com.skitech.api.service;
 
 import com.skitech.api.model.Listing;
 import com.skitech.api.model.Location;
+import com.skitech.api.model.Picture;
 import com.skitech.api.model.Region;
+import com.skitech.api.repository.DeliveryStatus;
 import com.skitech.api.repository.ListingRepository;
+import com.skitech.api.repository.PictureRepository;
 import com.skitech.api.repository.RegionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +24,7 @@ public class ListingService {
     private ListingRepository listingRepository;
 
     @Autowired
-    private RegionRepository regionRepository;
+    private RegionRepository regionRepository;    
 
     // Create a new Listing in a specific Region
     public Listing saveListing(Long regionId, Listing listing) {
@@ -37,6 +42,10 @@ public class ListingService {
     // Get a Listing by ID in a specific Region
     public Optional<Listing> getListingById(Long regionId, Long listingId) {
         return listingRepository.findByIdAndRegionId(listingId, regionId);
+    }
+    
+    public Listing getListingByIdAndRegion(Long regionId, Long listingId) {
+        return listingRepository.findByIdAndRegionId(listingId, regionId).orElse(null);
     }
 
     // Update a Listing by ID in a specific Region
@@ -70,9 +79,10 @@ public class ListingService {
         existingListing.setIndividual(updatedListing.getIndividual());
         existingListing.setDoorNumber(updatedListing.getDoorNumber());
         existingListing.setFloorNumber(updatedListing.getFloorNumber());
-        existingListing.setPicture(updatedListing.getPicture());
+        existingListing.setPictures(updatedListing.getPictures());
         existingListing.setVideo(updatedListing.getVideo());
         existingListing.setComment(updatedListing.getComment());
+        existingListing.setStatus(updatedListing.getStatus());
 
         // Ensure location updates
         if (updatedListing.getLocation() != null) {
@@ -84,6 +94,28 @@ public class ListingService {
         }
 
         return listingRepository.save(existingListing);
+    }
+    
+    public Listing updateListingStatus(Long regionId, Long listingId, int status) {
+    	
+    	/* Convert int to Enum
+        DeliveryStatus deliveryStatus = DeliveryStatus.fromInt(status);
+        
+        return listingRepository.findByIdAndRegionId(listingId, regionId)
+                .map(listing -> {
+                    listing.setStatus(deliveryStatus); // 0-PENDING, 1-IN_PROGRESS, 2-COMPLETED
+                    return listingRepository.save(listing);
+                })
+                .orElse(null);*/
+        
+        Listing listing = listingRepository.findByIdAndRegionId(listingId, regionId)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+        // Convert int to Enum
+        DeliveryStatus deliveryStatus = DeliveryStatus.fromInt(status);
+        listing.setStatus(deliveryStatus);
+
+        return listingRepository.save(listing);
     }
 
 

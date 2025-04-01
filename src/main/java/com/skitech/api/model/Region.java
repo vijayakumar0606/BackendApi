@@ -29,9 +29,13 @@ public class Region {
     private List<Listing> listings = new ArrayList<>(); */
     
     
-    @OneToMany(mappedBy = "region", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference  // ✅ Prevents infinite recursion
-    private List<Listing> listings;
+    //@OneToMany(mappedBy = "region", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    //@JsonManagedReference  // ✅ Prevents infinite recursion
+    //private List<Listing> listings;
+    
+    @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    //@JsonManagedReference
+    private List<Listing> listings = new ArrayList<>();
     
     // ✅ No-arg constructor (REQUIRED by Hibernate)
     public Region() {

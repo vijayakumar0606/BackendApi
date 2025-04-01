@@ -1,7 +1,16 @@
 package com.skitech.api.dto;
 
-import com.skitech.api.model.Listing;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import com.skitech.api.model.Listing;
+import com.skitech.api.repository.DeliveryStatus;
+
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class ListingDTO {
     private Long id;
     private String name;
@@ -9,11 +18,32 @@ public class ListingDTO {
     private String individual;
     private String doorNumber;
     private String floorNumber;
-    private String picture;
+    //private String pictures;
     private String video;
     private String comment;
     private LocationDTO location;
+    private PictureDTO pictures;
+    private List<String> picturess;
+    
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus status = DeliveryStatus.PENDING;
+    
+    public DeliveryStatus getStatus() {
+		return status;
+	}
 
+	public List<String> getPicturess() {
+		return picturess;
+	}
+
+	public void setPicturess(List<String> picturess) {
+		this.picturess = picturess;
+	}
+
+	public void setStatus(DeliveryStatus inProgress) {
+		this.status = inProgress;
+	}
+	
     // Constructor
     public ListingDTO(Listing listing) {
         this.id = listing.getId();
@@ -22,10 +52,11 @@ public class ListingDTO {
         this.individual = listing.getIndividual();
         this.doorNumber = listing.getDoorNumber();
         this.floorNumber = listing.getFloorNumber();
-        this.picture = listing.getPicture();
+        //this.pictures = listing.getPictures();
         this.video = listing.getVideo();
         this.comment = listing.getComment();
         this.location = new LocationDTO(listing.getLocation());
+        this.pictures = new PictureDTO(listing.getPictures());
     }
 
 	public Long getId() {
@@ -76,13 +107,13 @@ public class ListingDTO {
 		this.floorNumber = floorNumber;
 	}
 
-	public String getPicture() {
-		return picture;
+	/*public String getPictures() {
+		return pictures;
 	}
 
-	public void setPicture(String picture) {
-		this.picture = picture;
-	}
+	public void setPictures(String pictures) {
+		this.pictures = pictures;
+	}*/
 
 	public String getVideo() {
 		return video;
@@ -107,4 +138,13 @@ public class ListingDTO {
 	public void setLocation(LocationDTO location) {
 		this.location = location;
 	}
+
+	public PictureDTO getPictures() {
+		return pictures;
+	}
+
+	public void setPictures(PictureDTO pictures) {
+		this.pictures = pictures;
+	}
+	
 }

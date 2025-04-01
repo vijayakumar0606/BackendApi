@@ -6,7 +6,12 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class Location {
-    private Double latitude;
+    @Override
+	public String toString() {
+		return "Location [latitude=" + latitude + ", longitude=" + longitude + "]";
+	}
+
+	private Double latitude;
     public Double getLatitude() {
 		return latitude;
 	}

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -35,11 +36,21 @@ public class RegionController {
         return regionService.getAllRegions();
     }*/
     
-    @GetMapping
-    public ResponseEntity<List<RegionDTO>> getAllRegions() {
-        List<RegionDTO> regions = regionService.getAllRegions();
+    /*@GetMapping
+    public ResponseEntity<List<Region>> getAllRegions() {
+    	System.out.println("Inside RegionController.getAllRegions() ...");
+        //List<RegionDTO> regions = regionService.getAllRegions();
+    	List<Region> regions = regionService.getAllRegions();
+        System.out.println("GetMapping : "+regions);
         return ResponseEntity.ok(regions);
+    }*/
+    
+    @GetMapping
+    public ResponseEntity<List<Map<String, Object>>> getAllRegions() {
+        List<Map<String, Object>> regionsResponse = regionService.getAllRegionsWithListings();
+        return ResponseEntity.ok(regionsResponse);
     }
+    
     /* // Fetch only region details
     @GetMapping("/{id}")
     public ResponseEntity<Region> getRegionById(@PathVariable Long id) {
@@ -54,8 +65,9 @@ public class RegionController {
     }*/
     
     @GetMapping("/{id}")
-    public Region getRegionById(@PathVariable Long id) {
-        return regionService.getRegionWithListings1(id);
+    public ResponseEntity<RegionDTO> getRegionById(@PathVariable Long id) {
+    	RegionDTO savedRegion = regionService.getRegionWithListings2(id);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedRegion);
     }
     
  // Update a region
@@ -73,14 +85,15 @@ public class RegionController {
 
     // Delete a region
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRegion(@PathVariable Long id) {
+    public ResponseEntity<String> deleteRegion(@PathVariable Long id) {
         boolean deleted = regionService.deleteRegion(id);
         if (deleted) {
             //return ResponseEntity.noContent().build()
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok("Region deleted successfully");
         } else {
             return ResponseEntity.notFound().build();
-        }
+        }    
+       
     }
     
 }
